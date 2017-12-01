@@ -1,6 +1,8 @@
 package net.erabbit.library;
 
 import android.content.Context;
+import android.content.IntentFilter;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -30,62 +32,92 @@ public class RtLog {
     public static final int NOTHING = 6;
     public static int level = VERBOSE;
     public static final boolean isPublish = true;
-    Context context;
+    private static Context context;
+    public static String alias;
 
-    public RtLog(Context context) {
-        this.context = context;
+    public static void init(Context context) {
+        RtLog.context = context;
+        YunBaManager.start(context);
+        subscribe(context, new String[]{"clients"});
+        String ANDROID_ID = Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID);
+        alias = (context.getPackageName() + "." + ANDROID_ID).replace(".", "_");
+        setAlias(context, alias);
+
+        MsgReceiver mMessageReceiver = new MsgReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(YunBaManager.MESSAGE_RECEIVED_ACTION);
+        filter.addCategory(context.getPackageName());
+        context.registerReceiver(mMessageReceiver, filter);
     }
 
-    public void v(String tag, String msg) {
+    public static void init(Context context, String appkey) {
+        RtLog.context = context;
+        YunBaManager.start(context, appkey);
+        subscribe(context, new String[]{"clients"});
+        String ANDROID_ID = Settings.System.getString(context.getContentResolver(), Settings.System.ANDROID_ID);
+        alias = (context.getPackageName() + "." + ANDROID_ID).replace(".", "_");
+        setAlias(context, alias);
+
+
+        MsgReceiver mMessageReceiver = new MsgReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(YunBaManager.MESSAGE_RECEIVED_ACTION);
+        filter.addCategory(context.getPackageName());
+        context.registerReceiver(mMessageReceiver, filter);
+
+
+    }
+
+    public static void v(String tag, String msg) {
         if (level <= VERBOSE) {
             Log.v(tag, msg);
             if (isPublish) {
-                publish(context);
+                publish(context, msg);
             }
         }
     }
 
-    public void d(String tag, String msg) {
+    public static void d(String tag, String msg) {
         if (level <= DEBUG) {
             Log.d(tag, msg);
             if (isPublish) {
-                publish(context);
+                publish(context, msg);
             }
         }
     }
 
-    public void i(String tag, String msg) {
+    public static void i(String tag, String msg) {
         if (level <= INFO) {
             Log.i(tag, msg);
             if (isPublish) {
-                publish(context);
+                publish(context, msg);
             }
         }
     }
 
-    public void w(String tag, String msg) {
+    public static void w(String tag, String msg) {
         if (level <= WARN) {
             Log.w(tag, msg);
             if (isPublish) {
-                publish(context);
+                publish(context, msg);
             }
         }
     }
 
-    public void e(String tag, String msg) {
+    public static void e(String tag, String msg) {
         if (level <= ERROR) {
             Log.e(tag, msg);
 
             if (isPublish) {
-                publish(context);
+                publish(context, msg);
             }
         }
     }
 
+
     //发布消息
-    private void publish(Context context) {
-        final String topic = "test";
-        final String msg = "hello yunba!";
+    public static void publish(Context context, final String msg) {
+        final String topic = alias;
 
         Log.i(TAG, "Publish msg = " + msg + " to topic = " + topic);
         YunBaManager.publish(context, topic, msg, new IMqttActionListener() {
@@ -108,8 +140,53 @@ public class RtLog {
     }
 
 
+    //发布消息
+    public static void publish(Context context, final String topic, final String msg) {
+        //final String topic = "test";
+        //final String msg = "hello yunba!";
+
+        Log.i(TAG, "Publish msg = " + msg + " to topic = " + topic);
+        YunBaManager.publish(context, topic, msg, new IMqttActionListener() {
+            public void onSuccess(IMqttToken asyncActionToken) {
+
+                String msgLog = "Publish succeed : " + topic;
+                StringBuilder showMsg = new StringBuilder();
+                showMsg.append("[Demo] publish msg")
+                        .append(" = ").append(msg).append(" to ")
+                        .append(YunBaManager.MQTT_TOPIC).append(" = ").append(topic).append(" succeed");
+                Log.i(TAG, showMsg.toString());
+            }
+
+            @Override
+            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                String msg = "[Demo] Publish topic = " + topic + " failed : " + exception.getMessage();
+                Log.i(TAG, msg);
+            }
+        });
+    }
+
+
+    public static void subscribe(Context context, String[] alias) {
+
+        //订阅主题消息
+        YunBaManager.subscribe(context, alias, new IMqttActionListener() {
+
+            @Override
+            public void onSuccess(IMqttToken arg0) {
+                Log.d(RtLog.TAG, "Subscribe topic succeed");
+            }
+
+            @Override
+            public void onFailure(IMqttToken arg0, Throwable arg1) {
+                Log.d(RtLog.TAG, "Subscribe topic failed");
+            }
+        });
+
+    }
+
+
     //设置别名
-    private void setAlias(Context context, final String alias) {
+    private static void setAlias(Context context, final String alias) {
         if (TextUtils.isEmpty(alias)) {
             return;
         }

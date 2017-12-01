@@ -29,9 +29,12 @@
             </intent-filter>
         </receiver>
 
+        <!--<receiver android:name=".MsgReceiver">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="io.yunba.android.MESSAGE_RECEIVED_ACTION" />-->
+                <!--<category android:name="net.erabbit.rtlog" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
 
-        <meta-data
-            android:name="YUNBA_APPKEY"
-            android:value="5a20cb7b2a27c9d728f534f0" />
     </application>
 </manifest>
