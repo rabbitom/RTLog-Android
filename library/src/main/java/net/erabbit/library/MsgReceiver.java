@@ -33,7 +33,7 @@ public class MsgReceiver extends BroadcastReceiver {
             final String msg = intent.getStringExtra(YunBaManager.MQTT_MSG);
 
             Log.i(RtLog.TAG, "topic=" + topic + ",msg=" + msg);
-            Toast.makeText(context, "msg=" + msg, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "msg=" + msg, Toast.LENGTH_SHORT).show();
             StringBuilder showMsg = new StringBuilder();
             showMsg.append("Received message from server: ").append(YunBaManager.MQTT_TOPIC)
                     .append(" = ").append(topic).append(" ")

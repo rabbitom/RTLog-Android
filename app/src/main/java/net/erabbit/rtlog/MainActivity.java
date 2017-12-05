@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
         message = (TextView) findViewById(R.id.message);
         subTopic = (EditText) findViewById(R.id.subTopic);
 
+        pubTopic.setText(RtLog.alias);
         RtLog.i(TAG, "success");
     }
 

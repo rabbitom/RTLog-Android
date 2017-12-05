@@ -16,6 +16,7 @@
         <EditText
             android:id="@+id/pubTopic"
             android:layout_width="0dp"
+            android:text="clients"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="topic" />
@@ -23,6 +24,7 @@
         <EditText
             android:id="@+id/message"
             android:layout_width="0dp"
+            android:text="test"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="message" />
@@ -47,6 +49,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:text="clients"
             android:hint="topic" />
 
         <Button
